@@ -29,15 +29,3 @@ while True:
             rectangle.x += 10
     pygame.draw.rect(screen,  rectangle_color, rectangle)
     pygame.display.flip()
-
-
-
-
-
-
-
-
-
-
-
-
