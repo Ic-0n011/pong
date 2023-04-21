@@ -1,5 +1,5 @@
 import math
-
+import random
 def degrees_to_velocity(degrees, speed) -> tuple:
     """
         Получает угол в градусах и скорость (по времени).
@@ -11,6 +11,9 @@ def degrees_to_velocity(degrees, speed) -> tuple:
     radians = math.radians(degrees)
     velocity_x = (math.sin(radians) * speed)
     velocity_y = (math.cos(radians) * speed)
-    velocity_x = round(velocity_x, 2)
-    velocity_y = round(velocity_y, 2) * -1  # в pygame Y растет вниз
+    velocity_y = velocity_y * -1
+    print(velocity_y)
+    if velocity_y == 0:
+        velocity_y += random.randint(-8, 8)
     return (velocity_x, velocity_y)
+
