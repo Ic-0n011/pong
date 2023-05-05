@@ -1,124 +1,45 @@
 import pygame
-import random
 import sys
-import degrees_to_velocity
-
-pygame.init()  # инициализация модулей пайгейма
-
-# константы
-WHITE = (255, 255, 255)  # белый цвет
-BLACK = (0, 0, 0)  # черный цвет
 
 
-# увдры в секунды - тики
-fps = pygame.time.Clock()
+class Game:
+    def __init__(self):
+        pygame.init()
+        WHITE = (255, 255, 255)
+        screen_info = pygame.display.Info()
+        self.W = screen_info.current_w
+        self.H = screen_info.current_h
+        self.screen = pygame.display.set_mode((self.W, self.H),pygame.FULLSCREEN)
+        self.screen_rect = self.screen.get_rect()
+        self.player1 = Paddle(self.screen_rect.width * 0.1, self.screen_rect.centery, WHITE)
+        self.player2 = Paddle(self.screen_rect.width * 0.9, self.screen_rect.centery, WHITE)
+        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites.add(self.player1, self.player2)
 
-
-ball_direction = degrees_to_velocity.degrees_to_velocity(random.randint(0, 360), 1)
-ball_speed_x = ball_direction[0]
-ball_speed_y = ball_direction[1]
-
-
-# экран
-screen_width = 800  # ширина экрана в пикселях
-screen_height = 600  # высота экрана в пикселях
-screen = pygame.display.set_mode((screen_width, screen_height))  # экран
-
-# игрок 1
-player_1_width = 10  # ширина игрока
-player_1_height = 60  # высота игрока
-player_1_x = 40
-player_1_y = screen_height // 2 - player_1_height // 2  # игрок в центре по высоте
-player_1 = pygame.Rect((player_1_x, player_1_y, player_1_width, player_1_height))  # создаем игрока
-player_1_score = 0
-
-# игрок 1
-player_2_width = 10  # ширина игрока
-player_2_height = 60  # высота игрока
-player_2_x = screen_width - player_2_width - player_1_x
-player_2_y = screen_height // 2 - player_2_height // 2  # игрок в центре по высоте
-player_2 = pygame.Rect((player_2_x, player_2_y, player_2_width, player_2_height))  # создаем игрока
-player_2_score = 0
-
-ball_width = 10
-ball_height = 10
-ball_x = (screen_width // 2) - (ball_width // 2)
-ball_y = (screen_height // 2) - (ball_height // 2)
-ball = pygame.Rect((ball_x, ball_y, ball_width, ball_height))
-
-
-game = True  
-while game:
-    """ 
-        Главный цикл игры
-        Цикл должен обязательно закончится обновлением дисплея,
-        если выйти по break, то игра зависнет!
-        Контролируем, идет ли игра, переменной game
-    """
-
-    # события
-    for event in pygame.event.get():  # проходим по всем событиям, которые происходят сейчас
-        if event.type == pygame.QUIT:  # обработка события выхода
-            game = False
-        if event.type == pygame.KEYDOWN:  # нажатая клавиша (не зажатая!)
-            if event.key == pygame.K_ESCAPE:  # клавиша Esc
+    def main_loop(self):
+        game = True
+        while game:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    game = False
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_ESCAPE]:
                 game = False
-
-    keys = pygame.key.get_pressed() # собираем коды нажатых клавиш в список
-    if keys[pygame.K_w]:  # клавиша стрелка вверх
-        if player_1.y > 0:
-            player_1.y -= 1  # двигаем игрока вверх (в PG Y растет вниз)
-    if keys[pygame.K_s]:  # клавиша стрелка вниз
-        if player_1.y < screen_height - player_1_height:
-            player_1.y += 1  # двигаем игрока вниз
-
-    if keys[pygame.K_UP]:  # клавиша стрелка вверх
-        if player_2.y > 0:
-            player_2.y -= 1  # двигаем игрока вверх (в PG Y растет вниз)
-    if keys[pygame.K_DOWN]:  # клавиша стрелка вниз
-        if player_2.y < screen_height - player_2_height:
-            player_2.y += 1  # двигаем игрока вниз
-
-    ball.x += ball_speed_x
-    ball.y += ball_speed_y
-    
-    if ball.x < 0:
-        ball.x = (screen_width // 2) - (ball_width // 2)
-        ball.y = (screen_height // 2) - (ball_height // 2)
-        player_2_score =+ 1
-        ball_direction = degrees_to_velocity.degrees_to_velocity(random.randint(0, 360), 8)
-        ball_speed_x = ball_direction[0]
-        ball_speed_y = ball_direction[1]
-    if ball.x > screen_width - ball_width:
-        ball.x = (screen_width // 2) - (ball_width // 2)
-        ball.y = (screen_height // 2) - (ball_height // 2)
-        player_1_score =+ 1
-        ball_direction = degrees_to_velocity.degrees_to_velocity(random.randint(0, 360), 8)                 # FIXME: мяч вылетает за стенки 
-        ball_speed_x = ball_direction[0]                                                                    # TODO: Изменить 'degrees_to_velocity'
-        ball_speed_y = ball_direction[1]                                                        
-                                                                                                
-    
-    if ball.y < 0:
-        ball_speed_y = -ball_speed_y + -1
-    if ball.y > screen_height - ball_height:
-        ball_speed_y = -ball_speed_y + -1
-
-    # отражение мяча от ракеток
-    if ball.colliderect(player_1) or ball.colliderect(player_2):
-        ball_speed_x = -ball_speed_x
-        ball_speed_y = -ball_speed_y
-
-    pygame
-
-    # отрисовка
-    screen.fill(BLACK)  # заливаем экран чёрным
-    pygame.draw.rect(screen, WHITE, player_1) # рисуем игрока 1
-    pygame.draw.rect(screen, WHITE, player_2)  # рисуем игрока 2
-    pygame.draw.rect(screen, WHITE, ball) # рисуем квадратный мяч 2
-    pygame.display.flip()  # обновляем экран
-    fps.tick(240)
+            self.all_sprites.draw(self.screen)
+            pygame.display.flip()
 
 
-# после завершения главного цикла
-pygame.quit()  # выгрузили модули pygame из пямяти
-sys.exit()  # закрыли программу
+class Paddle(pygame.sprite.Sprite):
+    def __init__(self, color: tuple, center_x: int, center_y: int) -> None:
+        super().__init__()
+        self.image = pygame.Surface((10, 100))
+        self.rect = self.image.get_rect()
+        self.rect.centerx = center_x
+        self.rect.centery = center_y
+        self.image.fill(color)
+
+
+game = Game()
+game.main_loop()
+pygame.quit()
+sys.exit()
